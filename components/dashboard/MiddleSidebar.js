@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { doc, updateDoc, arrayRemove, getDoc, arrayUnion } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  arrayRemove,
+  getDoc,
+  arrayUnion,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { toast } from "react-toastify";
 
 const MiddleContent = ({ user, userId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -16,7 +23,7 @@ const MiddleContent = ({ user, userId }) => {
           setUserImages(userDoc.data().images || []);
         }
       } catch (error) {
-        console.error("Error fetching user images:", error);
+        toast.error("Error fetching user images:", error);
       }
     };
 
@@ -30,7 +37,7 @@ const MiddleContent = ({ user, userId }) => {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      alert("Rasm hajmi juda katta. Iltimos, kichikroq rasm yuklang.");
+      toast.info("Rasm hajmi juda katta. Iltimos, kichikroq rasm yuklang.");
       return;
     }
 
@@ -69,25 +76,40 @@ const MiddleContent = ({ user, userId }) => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      alert("Iltimos, avval rasm tanlang.");
+      toast.error("Iltimos, avval rasm tanlang.");
       return;
     }
 
     setUploading(true);
     try {
-      const timestamp = new Date().toISOString();
-      const newImage = { url: selectedFile, uploadedAt: timestamp };
+      // Foydalanuvchining joylashuvini olish
+      const location = await getLocation();
 
+      // Timestamp
+      const timestamp = new Date().toISOString();
+
+      // Surat va joylashuvni saqlash
+      const newImage = {
+        url: selectedFile,
+        uploadedAt: timestamp,
+        location: {
+          lat: location.latitude,
+          lng: location.longitude,
+          mapLink: `https://www.google.com/maps?q=${location.latitude},${location.longitude}`,
+        },
+      };
+
+      // Firestore'ga saqlash
       const userDocRef = doc(db, "users", userId);
       await updateDoc(userDocRef, {
         images: arrayUnion(newImage),
       });
       setUserImages((prevImages) => [...prevImages, newImage]);
-      alert("Rasm muvaffaqiyatli yuklandi va saqlandi!");
+      toast.success("Rasm muvaffaqiyatli yuklandi va saqlandi!");
       setSelectedFile(null);
     } catch (error) {
-      console.error("Xatolik rasmni saqlashda:", error);
-      alert("Xatolik yuz berdi. Qayta urinib ko'ring.");
+      toast.error("Xatolik rasmni saqlashda:", error);
+      toast.info("Xatolik yuz berdi. Qayta urinib ko'ring.");
     } finally {
       setUploading(false);
     }
@@ -107,10 +129,10 @@ const MiddleContent = ({ user, userId }) => {
       setUserImages((prevImages) =>
         prevImages.filter((img) => img.url !== image.url)
       );
-      alert("Rasm muvaffaqiyatli o'chirildi!");
+      toast.success("Rasm muvaffaqiyatli o'chirildi!");
     } catch (error) {
-      console.error("Xatolik rasmni o'chirishda:", error);
-      alert("Rasmni o'chirishda xatolik yuz berdi. Qayta urinib ko'ring.");
+      toast.error("Xatolik rasmni o'chirishda:", error);
+      toast.info("Rasmni o'chirishda xatolik yuz berdi. Qayta urinib ko'ring.");
     }
   };
 
@@ -118,20 +140,38 @@ const MiddleContent = ({ user, userId }) => {
     const date = new Date(timestamp);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   };
+  const getLocation = () => {
+    return new Promise((resolve, reject) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            resolve({ latitude, longitude });
+          },
+          (error) => {
+            reject(error);
+          }
+        );
+      } else {
+        reject("Geolocation is not supported by this browser.");
+      }
+    });
+  };
 
   return (
-    <div className="flex-1 bg-white p-6 flex flex-col">
+    <div className="flex items-center justify-start flex-col w-full min-h-screen p-5">
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 flex-col w-full ">
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 flex-col w-full">
           <input
             type="text"
             placeholder="Search..."
-            className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-5 mb-5"
           />
-          <label className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none cursor-pointer">
-            Upload
+          <label className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none cursor-pointer text-center mb-2">
+            Rasm tanlash
             <input
               type="file"
               accept="image/*"
@@ -141,16 +181,15 @@ const MiddleContent = ({ user, userId }) => {
           </label>
           <button
             onClick={handleUpload}
-            className={`bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
+            className={`bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none ${
+              uploading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             disabled={uploading}
           >
-            {uploading ? "Uploading..." : "Save"}
+            {uploading ? "Yuklanmoqda..." : "Yuklash"}
           </button>
         </div>
       </div>
-
-      {/* Greeting Section */}
-      <p>Assalomu alaykum, {user?.firstName}!</p>
 
       {/* Images Section */}
       <div className="mt-6">
@@ -174,10 +213,20 @@ const MiddleContent = ({ user, userId }) => {
                 alt={`Uploaded ${index}`}
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
-              {/* Timestamp */}
-              <p className="text-sm text-gray-500">
-                Yuklangan sana: {formatTimestamp(image.uploadedAt)}
-              </p>
+              {/* Timestamp and Location */}
+              <div className="text-sm text-gray-500">
+                <p>Yuklangan sana: {formatTimestamp(image.uploadedAt)}</p>
+                <p>
+                  <a
+                    href={image.location?.mapLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Manzilni ko‘rish
+                  </a>
+                </p>
+              </div>
             </div>
           ))}
         </div>

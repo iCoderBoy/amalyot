@@ -3,13 +3,13 @@ import React from "react";
 
 const RightSidebar = ({ user }) => {
   return (
-    <div className="w-full min-h-screen lg:w-1/4 bg-white shadow-lg p-6 border-l border-gray-200 rounded-lg">
+    <div className="w-full min-h-screen hidden lg:w-1/4 bg-white shadow-lg p-6 border-l border-gray-200 rounded-lg d-none">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">User Info</h2>
       {user ? (
         <div className="space-y-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-              <img
+            <img
                 src={user.image || "https://via.placeholder.com/150"}
                 alt="User"
                 className="w-full h-full rounded-full border-4 border-white shadow-lg object-cover"
