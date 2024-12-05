@@ -9,9 +9,11 @@ const RightSidebar = ({ user }) => {
         <div className="space-y-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-              <span className="text-xl font-semibold text-gray-500">
-                {user.firstName.charAt(0)}{user.lastName.charAt(0)}
-              </span>
+              <img
+                src={user.image || "https://via.placeholder.com/150"}
+                alt="User"
+                className="w-full h-full rounded-full border-4 border-white shadow-lg object-cover"
+              />
             </div>
             <div>
               <p className="text-lg font-semibold text-gray-700">
