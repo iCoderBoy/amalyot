@@ -145,7 +145,7 @@ const Registration = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-400 to-blue-500">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8">
+      <div className="md:w-full max-w-2xl bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
           {isLogin ? 'Kirish' : "Ro'yxatdan o'tish"}
         </h2>

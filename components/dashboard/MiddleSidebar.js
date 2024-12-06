@@ -13,6 +13,8 @@ const MiddleContent = ({ user, userId }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [userImages, setUserImages] = useState([]);
+  const [filteredImages, setFilteredImages] = useState([]);
+  const [searchDate, setSearchDate] = useState("");
 
   useEffect(() => {
     const fetchUserImages = async () => {
@@ -20,7 +22,9 @@ const MiddleContent = ({ user, userId }) => {
         const userDocRef = doc(db, "users", userId);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-          setUserImages(userDoc.data().images || []);
+          const images = userDoc.data().images || [];
+          setUserImages(images);
+          setFilteredImages(images); // Initialize filtered images
         }
       } catch (error) {
         toast.error("Error fetching user images:", error);
@@ -31,6 +35,19 @@ const MiddleContent = ({ user, userId }) => {
       fetchUserImages();
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (!searchDate) {
+      setFilteredImages(userImages); // Reset to show all images when input is empty
+    } else {
+      const filtered = userImages.filter((image) => {
+        const imageDate = new Date(image.uploadedAt);
+        const formattedDate = imageDate.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        return formattedDate === searchDate;
+      });
+      setFilteredImages(filtered);
+    }
+  }, [searchDate, userImages]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -82,13 +99,9 @@ const MiddleContent = ({ user, userId }) => {
 
     setUploading(true);
     try {
-      // Foydalanuvchining joylashuvini olish
       const location = await getLocation();
-
-      // Timestamp
       const timestamp = new Date().toISOString();
 
-      // Surat va joylashuvni saqlash
       const newImage = {
         url: selectedFile,
         uploadedAt: timestamp,
@@ -99,17 +112,16 @@ const MiddleContent = ({ user, userId }) => {
         },
       };
 
-      // Firestore'ga saqlash
       const userDocRef = doc(db, "users", userId);
       await updateDoc(userDocRef, {
         images: arrayUnion(newImage),
       });
       setUserImages((prevImages) => [...prevImages, newImage]);
+      setFilteredImages((prevImages) => [...prevImages, newImage]);
       toast.success("Rasm muvaffaqiyatli yuklandi va saqlandi!");
       setSelectedFile(null);
     } catch (error) {
       toast.error("Xatolik rasmni saqlashda:", error);
-      toast.info("Xatolik yuz berdi. Qayta urinib ko'ring.");
     } finally {
       setUploading(false);
     }
@@ -129,10 +141,12 @@ const MiddleContent = ({ user, userId }) => {
       setUserImages((prevImages) =>
         prevImages.filter((img) => img.url !== image.url)
       );
+      setFilteredImages((prevImages) =>
+        prevImages.filter((img) => img.url !== image.url)
+      );
       toast.success("Rasm muvaffaqiyatli o'chirildi!");
     } catch (error) {
       toast.error("Xatolik rasmni o'chirishda:", error);
-      toast.info("Rasmni o'chirishda xatolik yuz berdi. Qayta urinib ko'ring.");
     }
   };
 
@@ -140,6 +154,7 @@ const MiddleContent = ({ user, userId }) => {
     const date = new Date(timestamp);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   };
+
   const getLocation = () => {
     return new Promise((resolve, reject) => {
       if (navigator.geolocation) {
@@ -161,13 +176,13 @@ const MiddleContent = ({ user, userId }) => {
 
   return (
     <div className="flex items-center justify-start flex-col w-full min-h-screen p-5">
-      {/* Header Section */}
-      <div className="flex justify-between items-center mb-6 flex-col w-full ">
+      <div className="flex justify-between items-center mb-6 flex-col w-full">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex space-x-4 flex-col w-full">
           <input
-            type="text"
-            placeholder="Search..."
+            type="date"
+            value={searchDate}
+            onChange={(e) => setSearchDate(e.target.value)}
             className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mt-5 mb-5"
           />
           <label className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none cursor-pointer text-center mb-2">
@@ -191,29 +206,25 @@ const MiddleContent = ({ user, userId }) => {
         </div>
       </div>
 
-      {/* Images Section */}
       <div className="mt-6">
         <h2 className="text-xl font-bold mb-4">Yuklangan rasmlar:</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {userImages.map((image, index) => (
+          {filteredImages.map((image, index) => (
             <div
               key={index}
               className="relative border rounded-lg shadow-md p-4 bg-gray-50"
             >
-              {/* Delete Button */}
               <button
                 onClick={() => handleDelete(image)}
                 className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700"
               >
                 &times;
               </button>
-              {/* Image */}
               <img
                 src={image.url}
                 alt={`Uploaded ${index}`}
                 className="w-full h-40 object-cover rounded-md mb-4"
               />
-              {/* Timestamp and Location */}
               <div className="text-sm text-gray-500">
                 <p>Yuklangan sana: {formatTimestamp(image.uploadedAt)}</p>
                 <p>

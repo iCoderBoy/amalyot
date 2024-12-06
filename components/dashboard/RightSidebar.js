@@ -1,15 +1,41 @@
-// RightSidebar.js
-import React from "react";
+import { Person, Close, Logout } from "@mui/icons-material";
+import React, { useState } from "react";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const RightSidebar = ({ user }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => {
+    setIsOpen(!isOpen);
+    console.log(isOpen);
+  };
+
   return (
-    <div className="w-full min-h-screen hidden lg:w-1/4 bg-white shadow-lg p-6 border-l border-gray-200 rounded-lg d-none">
+    <div
+      className={`w-full min-h-screen lg:w-1/4 bg-white shadow-lg p-6 border-l border-gray-200 rounded-lg fixed top-0 transition-all duration-300 ${
+        isOpen ? "left-0" : "left-[100%]"
+      }`}
+    >
+      <div
+        className="w-[50px] h-[50px] bg-blue-600 absolute left-[-50px] rounded-tl-lg rounded-bl-lg flex items-center justify-center text-white cursor-pointer"
+        onClick={handleOpen}
+      >
+        <Person />
+      </div>
+      <div
+        className="w-[50px] h-[50px] bg-blue-600 absolute right-[20px] rounded-lg flex items-center justify-center text-white cursor-pointer"
+        onClick={handleOpen}
+      >
+        <Close />
+      </div>
+
       <h2 className="text-2xl font-bold text-gray-800 mb-6">User Info</h2>
       {user ? (
         <div className="space-y-6">
           <div className="flex items-center space-x-4">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            <img
+              <img
                 src={user.image || "https://via.placeholder.com/150"}
                 alt="User"
                 className="w-full h-full rounded-full border-4 border-white shadow-lg object-cover"
@@ -24,11 +50,30 @@ const RightSidebar = ({ user }) => {
           </div>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <p className="text-sm text-gray-600">
-              <strong>Phone:</strong> {user.phone || "N/A"}
+              <strong>Telefon: +998</strong> {user.phone || "N/A"}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <p className="text-sm text-gray-600">
+              <strong>Bo'lim:</strong> {user.department || "N/A"}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <p className="text-sm text-gray-600">
+              <strong>Guruh:</strong> {user.group || "N/A"}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <p className="text-sm text-gray-600">
+              <strong>Bosqich:</strong> {user.course || "N/A"}
             </p>
           </div>
           <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200">
             Edit Profile
+          </button>
+          <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center gap-[5px] bg-[crimson]" onClick={()=>signOut(auth)}>
+            <Logout/>
+            LogOut
           </button>
         </div>
       ) : (
