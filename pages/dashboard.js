@@ -58,6 +58,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
+      <LeftSidebar/>
       <MiddleContent user={user} userId={userId} />
       <RightSidebar user={user} />
     </div>

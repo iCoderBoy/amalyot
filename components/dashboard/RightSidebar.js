@@ -13,18 +13,18 @@ const RightSidebar = ({ user }) => {
 
   return (
     <div
-      className={`w-full min-h-screen lg:w-1/4 bg-white shadow-lg p-6 border-l border-gray-200 rounded-lg fixed top-0 transition-all duration-300 ${
-        isOpen ? "left-0" : "left-[100%]"
+      className={`w-full min-h-screen lg:w-1/4 bg-gradient-to-b from-gray-800 to-gray-600 p-6 border-gray-200 fixed top-0 transition-all duration-300 ${
+        isOpen ? "z-[101] left-0" : " left-[100%]"
       }`}
     >
       <div
-        className="w-[50px] h-[50px] bg-blue-600 absolute left-[-50px] rounded-tl-lg rounded-bl-lg flex items-center justify-center text-white cursor-pointer"
+        className="w-[50px] h-[50px] bg-blue-600 absolute bottom-[20px] left-[-50px] md:hidden sm:block rounded-tl-lg rounded-bl-lg flex items-center justify-center text-white cursor-pointer"
         onClick={handleOpen}
       >
         <Person />
       </div>
       <div
-        className="w-[50px] h-[50px] bg-blue-600 absolute right-[20px] rounded-lg flex items-center justify-center text-white cursor-pointer"
+        className="w-[50px] h-[50px] bg-blue-600 absolute right-[20px] md:hidden sm:block rounded-lg flex items-center justify-center text-white cursor-pointer"
         onClick={handleOpen}
       >
         <Close />
@@ -42,7 +42,7 @@ const RightSidebar = ({ user }) => {
               />
             </div>
             <div>
-              <p className="text-lg font-semibold text-gray-700">
+              <p className="text-lg font-semibold text-white">
                 {user.firstName} {user.lastName}
               </p>
               <p className="text-sm text-gray-500">{user.email}</p>
@@ -71,8 +71,11 @@ const RightSidebar = ({ user }) => {
           <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200">
             Edit Profile
           </button>
-          <button className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center gap-[5px] bg-[crimson]" onClick={()=>signOut(auth)}>
-            <Logout/>
+          <button
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center gap-[5px] bg-[crimson]"
+            onClick={() => signOut(auth)}
+          >
+            <Logout />
             LogOut
           </button>
         </div>
