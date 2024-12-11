@@ -18,7 +18,7 @@ const RightSidebar = ({ user }) => {
       }`}
     >
       <div
-        className="w-[50px] h-[50px] bg-blue-600 absolute bottom-[20px] left-[-50px] md:hidden sm:block rounded-tl-lg rounded-bl-lg flex items-center justify-center text-white cursor-pointer"
+        className="w-[50px] h-[50px] bg-blue-600 absolute top-[10px] left-[-50px] md:hidden sm:block rounded-tl-lg rounded-bl-lg flex items-center justify-center text-white cursor-pointer"
         onClick={handleOpen}
       >
         <Person />

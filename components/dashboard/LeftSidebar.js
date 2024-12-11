@@ -13,7 +13,7 @@ const LeftSidebar = () => {
     <div className={`w-full sm:w-1/4 bg-gradient-to-b from-gray-800 to-gray-600 text-white p-6 flex flex-col h-screen fixed w-full min-h-screen top-[0] ${isOpen ? "left-[-100%]": "left-[0]"} transition-all z-[90]`}>
       
       <div
-        className={`w-[50px] h-[50px] bg-blue-600 absolute bottom-[20px] ${isOpen ? "rounded-tr-[10px] rounded-br-[10px] right-[-50px]" : "rounded-lg right-[20px]"} transition-all md:hidden sm:block flex items-center justify-center text-white cursor-pointer`}
+        className={`w-[50px] h-[50px] bg-blue-600 absolute top-[10px] ${isOpen ? "rounded-tr-[10px] rounded-br-[10px] right-[-50px]" : "rounded-lg right-[20px]"} transition-all md:hidden sm:block flex items-center justify-center text-white cursor-pointer`}
         onClick={handleOpen}
       >
         {isOpen? <Menu /> : <Close/>}
